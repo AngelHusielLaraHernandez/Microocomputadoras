@@ -1,0 +1,270 @@
+\documentclass[letterpaper,12pt]{article}
+
+% --- PAQUETES DE IDIOMA
+\usepackage[spanish,mexico]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{csquotes}
+
+% --- PAQUETES MATEMÁTICOS --
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{cancel}
+\usepackage{mathrsfs}
+
+% --- PAQUETES GRÁFICOS Y DE DISEÑO ---
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{makecell}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, positioning}
+\usetikzlibrary{shapes.multipart, positioning, arrows.meta, calc, shadows}
+
+
+% --- PAQUETES DE CÓDIGO ---
+\usepackage{listings}
+% Configuración del estilo de listings
+% Paleta de colores estilo VSCode
+\definecolor{codebg}{rgb}{0.95,0.95,0.95}   % gris claro de fondo
+\definecolor{keyword}{rgb}{0.0,0.2,0.6}     % azul oscuro
+\definecolor{comment}{rgb}{0.25,0.5,0.35}   % verde
+\definecolor{string}{rgb}{0.6,0.0,0.0}      % rojo oscuro
+\definecolor{number}{rgb}{0.5,0.0,0.5}      % morado
+
+% Paleta de colores personalizada
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.95}
+
+% Configuración del estilo
+\lstset{
+  backgroundcolor=\color{backcolour},   % Fondo gris claro
+  basicstyle=\ttfamily\small,           % Fuente monoespaciada
+  keywordstyle=\color{blue}\bfseries,   % Palabras clave en azul y negrita
+  stringstyle=\color{codepurple},       % Cadenas en morado
+  commentstyle=\color{codegray}\itshape,% Comentarios grises en cursiva
+  numbers=left,                         % Números de línea a la izquierda
+  numberstyle=\tiny\color{codegray},    % Estilo de los números
+  frame=single,                         % Marco alrededor
+  rulecolor=\color{black},              % Color del marco
+  breaklines=true,                      % Ajuste automático de línea
+  tabsize=4,                            % Tabulación de 4 espacios
+  showstringspaces=false                % No mostrar espacios raros
+}
+
+
+% --- RUTAS DE IMÁGENES ---
+% LaTeX buscará imágenes en estas carpetas automáticamente
+\graphicspath{{img/}{portada_img/}} 
+
+% --- DIBUJO DE CIRCUITOS ---
+\usepackage{pgf,tikz}
+\usetikzlibrary{decorations.pathreplacing, calc, positioning}
+
+% Definimos el color azul similar al de la imagen
+\definecolor{armblue}{RGB}{0, 113, 188}
+
+% --- CONFIGURACIÓN DE PÁGINA (GEOMETRÍA) ---
+\usepackage[
+    left=25mm, 
+    right=25mm,
+    top=35mm,
+    bottom=30mm,
+    headheight=77pt, 
+    papersize={21.59cm,27.94cm}
+]{geometry}
+
+% --- FORMATO DE TEXTO ---
+\renewcommand{\baselinestretch}{1.25} % Interlineado 1.25
+\usepackage{parskip} % Espacio entre párrafos sin sangría
+\usepackage{lipsum}  % Texto de relleno
+
+% --- VARIABLES GLOBALES ---
+\newcommand{\materia}{}
+
+% --- ENCABEZADOS Y PIES DE PÁGINA ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} % Limpia encabezados y pies por defecto
+
+% CONFIGURACIÓN DE LOS ESCUDOS EN EL ENCABEZADO
+\fancyhead[L]{\includegraphics[height=1.5cm]{portada_img/izq.png}} 
+\fancyhead[R]{\includegraphics[height=1.5cm]{portada_img/der.png}} 
+
+\fancyfoot[C]{\thepage} % Número de página al centro abajo
+\renewcommand{\headrulewidth}{0.4pt} % Línea horizontal bajo el encabezado
+\renewcommand{\footrulewidth}{0pt}   % Sin línea en el pie
+
+% --- BIBLIOGRAFÍA ---
+\usepackage[backend=biber, style=apa, sortcites, url=true]{biblatex}
+\addbibresource{referencias.bib}
+
+% --- HIPERVÍNCULOS (Siempre al final del preámbulo) ---
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan
+}
+
+% ---------------------------------------------------------
+% INICIO DEL DOCUMENTO
+% ---------------------------------------------------------
+
+\begin{document}
+
+    % 1. INSERTAR PORTADA (portada.tex)
+    \input{portada.tex}
+
+    \newpage
+    \setcounter{page}{1} % Reiniciar contador en 1
+
+    % 2. CONTENIDO
+    \noindent\textbf{1.-Explique que son los modos de direccionamiento en la programación de microprocesadores. }
+
+    Los modos de direccionamiento en los microprocesadores es el metodo en el que mediante el cual se calcula la direccion efectiva de los operadores, no obstante para cualquier programador de ensablandor es escencial comprender estos modos de direccionamiento, ya que el direccionamiento no solo define donde esta el dato, sino que tambien cuanto tiempo y energia costara el acceso al mismo.
+
+    Los modos de direccionamiento han ido evolucionando mas entre las arquitecturas CISC y RISC, mientras que las arquitecturas CISC antiguas permitían operaciones aritméticas directamente sobre direcciones de memoria complejas.
+
+    Para esto podemos tener las clasificaciones y sis modos basandose en el ubicacion del operador:
+
+    \begin{enumerate}
+        \item Inmediato: El dato es parte de la instrucción.
+        \item Registro: El dato está en el banco de registros.
+        \item Directo/Absoluto: La dirección de memoria es constante.
+        \item Indirecto/Indexado: La dirección se calcula dinámicamente.
+    \end{enumerate}
+
+    No obstante, esta clasificacion no es estatica, tenemos el ejemplos de la Raspberry Pi, que es una arquitectura RISC, y a pesar de esto tiene modos de direccionamiento complejos como el modo de direccionamiento indirecto, que es un modo de direccionamiento que se caracteriza por utilizar un registro para almacenar la dirección de memoria del operando, en lugar de incluir la dirección directamente en la instrucción.
+
+    Ahora bien, tenemos el caso de la direccion efectiva, donde es el resultado final de cualuqier calculo de direccion requerido  por una instrucción antes de acceder a la memoria.  La eficiencia con la que una microarquitectura puede calcular esta direccion efectiuva determina el rendimiento en tareas críticas como el recorrido de arreglos, la manipulación de pilas y el acceso a estructuras de datos complejas.
+
+    La implementación hardware de estos modos implica el uso de multiplexores para seleccionar entre diferentes fuentes de datos (el contador de programa, un registro, o un campo de la instrucción) y sumadores para calcular la dirección final.
+
+    \noindent\textbf{2.-Describa el modo de direccionamiento inherente , escriba un ejemplo y un gráfico que represente este modo de direccionamiento.}
+
+    El modo de direccionamiento inherente se conoce tambien como direccionamiento implicito, donde este lo que hace es una representacion mas primitiva y eficiente de instruicciones, en este modo no se especifica expliciamente mediante campos de direccion o seleccion de registros, de hecho es lo opuesto, donde la ubicacion del operando es fija y se asume que el operando esta en un lugar predefinido, como por ejemplo el acumulador o un registro especifico.
+
+    No obstante la instrrciones que modifican el registro de estado, instrucciones de barrera de memoria o tambien las intriccion de NO OPERACION caen en esta categoria conceptual de implicito. Dicho en otras palabras lo anteriormente explicado en el parrafo anterior, lo que hace escencialmente es que el procesador ya entiende implicitamente que no debe alterar ningun estado de los registros, o que debe modificar el estado de los flags, o que no se va a realizar ninguna operacion, lo que hace que este modo de direccionamiento sea muy eficiente en terminos de ciclos de reloj y consumo de energia.
+
+    \textbf{Ejemplo:}
+
+    En el caso de computadoras modernas tenemos el caso de las intrucciones NOP (No Operation), que son instrucciones que no realizan ninguna operación pero que pueden ser útiles para sincronización o para rellenar espacio en el código. En este caso, la instrucción NOP es un ejemplo clásico de direccionamiento inherente, ya que no requiere operandos y su efecto es simplemente no hacer nada.
+
+    Codigo ensablador:
+    \begin{lstlisting}[language={[x86masm]Assembler}, caption={Ejemplo de direccionamiento inherente con NOP}]
+    NOP ; No Operation, no hace nada
+    \end{lstlisting}
+
+    Al decodificar este opcode, la Unidad de Control sabe implícitamente que no debe activar ninguna línea de lectura de memoria ni habilitar la escritura en ningún registro. El "operando" es el propio flujo de tiempo del procesador, consumiendo un ciclo sin efectos secundarios.
+
+    Otro ejemplo en microprocesadores, es la instrucción CLC (Clear Carry). El operando es el bit de acarreo (Carry Flag) en el registro de estado,la instrucción CLC lleva implícita la dirección de ese bit específico..
+    
+    \textbf{Diagrama:}
+
+    \begin{tikzpicture}[
+        node distance=1.5cm,
+        font=\small\sffamily,
+        % Estilo para la instrucción (Opcode)
+        instruction/.style={
+            draw=blue!80!black,
+            fill=blue!10,
+            thick,
+            rectangle,
+            minimum width=3cm,
+            minimum height=1cm,
+            rounded corners=3pt,
+            drop shadow
+        },
+        % Estilo para el Registro de Estado (Flags)
+        register/.style={
+            draw=black,
+            fill=white,
+            rectangle split,
+            rectangle split parts=4,
+            rectangle split horizontal,
+            minimum height=1cm,
+            text width=0.8cm,
+            align=center
+        },
+        % Estilo para la Unidad de Control
+        control/.style={
+            draw=orange!80!black,
+            fill=orange!10,
+            trapezium,
+            trapezium angle=70,
+            minimum width=2.5cm,
+            minimum height=1cm,
+            thick,
+            align=center,
+            drop shadow
+        },
+        % Estilo para etiquetas y flechas
+        label/.style={text=gray!40!black, font=\footnotesize\bfseries},
+        arrow/.style={->, >=LaTeX, thick, color=gray!80!black}
+    ]
+
+        % 1. Nodo: Instrucción (Solo Opcode)
+        \node[instruction] (inst) {\textbf{CLC} \\ (Opcode)};
+        
+        \node[above=0.1cm of inst, label] {Instrucción en Memoria};
+
+        % 2. Nodo: Unidad de Control (Decodificación)
+        \node[control, right=2cm of inst] (cu) {Unidad de\\Control};
+
+        % 3. Nodo: Registro de Estado (Target)
+        % El Carry Flag es la parte implicita
+        \node[register, right=2cm of cu] (flags) {
+            \nodepart{one} Z
+            \nodepart{two} S
+            \nodepart{three} O
+            \nodepart{four} \textbf{C}
+        };
+        
+        % Etiquetas para el registro
+        \node[above=0.1cm of flags, label] {Registro de Estado (Flags)};
+        \node[below=0.4cm of flags, text=red!70!black, font=\scriptsize] (impl) {Ubicación Implícita};
+
+        % Flechas y Conexiones
+        
+        % Del Opcode a la UC
+        \draw[arrow] (inst) -- node[above, font=\scriptsize] {Decodificación} (cu);
+        
+        % De la UC al Flag específico (Carry)
+        % Usamos coordenadas relativas para apuntar exactamente al cuarto compartimento (Carry)
+        \draw[arrow, color=red!70!black] (cu.east) -- ++(0.5,0) |- ($(flags.four south) + (0,-0.4)$) -- (flags.four south);
+
+        % Anotación explicativa
+        \node[below=1.5cm of cu, align=center, fill=yellow!10, draw=yellow!60!black, rounded corners, inner sep=5pt] (note) {
+            \textbf{Direccionamiento Inherente}\\
+            El \textit{Opcode} ya indica dónde está el operando.\\
+            No hay campo de dirección explícito.
+        };
+
+        % Flecha punteada de contexto
+        \draw[dashed, gray] (note) -- (cu);
+
+    \end{tikzpicture}
+
+    En la parte izquierda, se observa que la instrucción reside en memoria conteniendo únicamente el Opcode, sin campos adicionales para operandos. Al pasar a la Unidad de Control, esta decodifica la instrucción y sabe implícitamente que debe actuar sobre un recurso específico del procesador: el Flag de Acarreo (C) dentro del Registro de Estado. Como muestra la línea roja, la ubicación del operando destino no se obtiene de una dirección de memoria ni de un índice de registro, lo que resulta en una ejecución rápida y directa.
+
+    \noindent\textbf{3.-Describa el modo de direccionamiento inmediato, escriba un ejemplo y un gráfico que represente este modo de direccionamiento.}
+
+
+    \noindent\textbf{4.-Describa el modo de direccionamiento directo, escriba un ejemplo y un gráfico que represente este modo de direccionamiento.}
+
+
+    \noindent\textbf{5.-Describa el modo de direccionamiento indirecto, escriba un ejemplo y un gráfico que represente este modo de direccionamiento.}
+
+
+
+
+    \newpage
+    \nocite{*} 
+    \printbibliography[heading=bibintoc, title={Referencias}]
+
+\end{document}
