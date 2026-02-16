@@ -254,8 +254,34 @@
 
     \noindent\textbf{3.-Describa el modo de direccionamiento inmediato, escriba un ejemplo y un gráfico que represente este modo de direccionamiento.}
 
+    En este modo de direccionamiento inmediato, el operador fuenteno se queda en una direccion de memoria ni en otro registro, si no que lo que hace es que esta codificado directamente dentro de los bits que conforman la instruccion en si, en otras palabras es que el dato es inmediatamente accesible despues de la busqueda de la instruccion.
+    
+    La implemetacion de este modo tanto en arquitectura RISC de 32 bits o ARM es dificil de implementar en ambos casos, donde en si el problema principal es en la geometria de la intruccion, por ejemplo si una instruccion tiene una longitud total de 32 bits y debe conener el codigo de operacion, los codigos de condicion y la direccion del registro de destino, es tecnicamente imposible reservar 32 bits adicionales dentro de ella para carar una constante arbitraria de 32 bits.
+    Para este problema, se presenta una solucion, donde en arquitecturas ARM, sehace uso del esquema de rotacion, donde en lugar de almacenar la constante tal cual, la instruccion almacena la constante tal cual, la instruccion alamacena un valor base de 8 bits y un valor de rotacion de 4 bits.
 
+    No obstante si se intenta usar una constante que no puede generarse mediante esta rotación (por ejemplo, una constante arbitraria de 32 bits con muchos cambios de bit), el ensamblador generará un error o, si es inteligente, convertirá la instrucción en una carga de memoria (LDR) desde un "literal pool", cambiando efectivamente el modo de direccionamiento de inmediato a relativo al PC, un matiz crítico que Smith advierte a los programadores.
+
+    \textbf{Ejemplo:}
+
+    En el caso de queremos iniciar un contandor en 10, entonces la instruccion en ensamblador seria:
+    \begin{verbatim}
+        MOV R0, #10
+    \end{verbatim}
+
+    Aquí, el símbolo \# (o a veces \$) denota que el 10 es un valor inmediato. El procesador toma el campo de la instrucción correspondiente al operando 2, lo pasa por el "barrel shifter" (desplazador de barril) descrito por Elahi , y deposita el resultado en R0. No se genera ninguna transacción en el bus de memoria de datos. 
+
+    \textbf{Diagrama:}
+
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{img/image1.png}
+    \end{center}
+
+    Para esto se muestra cómo el operando (dato constante) se encuentra codificado directamente dentro de la propia instrucción, ocupando campos específicos (valor base y rotación) en lugar de residir en una dirección de memoria externa. Este valor es extraído y procesado por el Barrel Shifter para generar la constante final de 32 bits, la cual se deposita inmediatamente en el registro de destino (R0), evitando así cualquier ciclo adicional de lectura en el bus de datos.
+
+    \newpage
+    
     \noindent\textbf{4.-Describa el modo de direccionamiento directo, escriba un ejemplo y un gráfico que represente este modo de direccionamiento.}
+    
 
 
     \noindent\textbf{5.-Describa el modo de direccionamiento indirecto, escriba un ejemplo y un gráfico que represente este modo de direccionamiento.}
