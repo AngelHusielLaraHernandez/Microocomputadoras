@@ -283,8 +283,17 @@
     \noindent\textbf{4.-Describa el modo de direccionamiento directo, escriba un ejemplo y un gráfico que represente este modo de direccionamiento.}
     El modo de direccionamiento diecto tambien es conocido como direccionamiento absoluto, este define el metodo de acceso a memoria en el cual la instruccion. contiene, dentro de sus bits la direccion efectiva que tambein es conocida como EA, este como tal no se requiere ningun calculo complejo, si no que lo que hace la unidad es aue el control del procesador extrae el valor del campo de direccion de la instruccion y ño colocla directamente en el bus de direcciones del sistema para iniciar e¿un ciclo de lectura y escritura.
     
+ Para esto el modo de direccionamiento directo ses muy. rapido, donde este sl ya no utilizar la unidsd logica o mejor conocida como ALU para calcular la direccion, no obstante, este modelo sufre de algo conocido como la rigidez, donde si el programa se mueve a otra direccion de memoria entonces las intrucciones tienen que ser reubicadas esto por el caragdor del sistema operativo.
 
-        
+ Cabe recalcar que la implmentacion de este modo de direccionamiento varia, donde tenemos los siguientes:
+ \begin{enumerate}
+    \item Direccionamiento de pagina cero: En este se utiliza una direccion abreviada para acceder rapidamente a los primeros 256 bytes de la memoria.
+    \item Direccionamiento extendido: Utiliza la direccion completa de memoria, pero en arquitectura RISC esto a menudo requiere mas ciclos devido a las limitaciones del ancho de palabra mencionadas anteriormente.
+ \end{enumerate}
+
+ Cabe recalcar un caso importante, donde si una instrucción LDR reservara 12 bits para un desplazamiento o dirección inmediata, solo podría direccionar un rango de 4096 bytes. Esto hace que el "direccionamiento directo puro" que es como la inclusión de una dirección completa de 32 bits dentro de una sola instrucción sea técnicamente imposible en una sola instrucción de máquina estándar de 32 bits.
+
+ Esto hace que el direccionamiento directo en lenguajes de alto nivel o en ensamblador simplificado, se implementa en la microarquitectura ARM mediante técnicas diferentes como el direccionamiento relativo al PC o el uso de pares de instrucciones (MOV + MOVT) para construir la dirección completa en un registro antes de acceder a la memoria.
 
     \noindent\textbf{5.-Describa el modo de direccionamiento indirecto, escriba un ejemplo y un gráfico que represente este modo de direccionamiento.}
 
