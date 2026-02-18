@@ -281,20 +281,101 @@
     \newpage
     
     \noindent\textbf{4.-Describa el modo de direccionamiento directo, escriba un ejemplo y un gráfico que represente este modo de direccionamiento.}
+    
     El modo de direccionamiento diecto tambien es conocido como direccionamiento absoluto, este define el metodo de acceso a memoria en el cual la instruccion. contiene, dentro de sus bits la direccion efectiva que tambein es conocida como EA, este como tal no se requiere ningun calculo complejo, si no que lo que hace la unidad es aue el control del procesador extrae el valor del campo de direccion de la instruccion y ño colocla directamente en el bus de direcciones del sistema para iniciar e¿un ciclo de lectura y escritura.
     
- Para esto el modo de direccionamiento directo ses muy. rapido, donde este sl ya no utilizar la unidsd logica o mejor conocida como ALU para calcular la direccion, no obstante, este modelo sufre de algo conocido como la rigidez, donde si el programa se mueve a otra direccion de memoria entonces las intrucciones tienen que ser reubicadas esto por el caragdor del sistema operativo.
+    Para esto el modo de direccionamiento directo ses muy. rapido, donde este sl ya no utilizar la unidsd logica o mejor conocida como ALU para calcular la direccion, no obstante, este modelo sufre de algo conocido como la rigidez, donde si el programa se mueve a otra direccion de memoria entonces las intrucciones tienen que ser reubicadas esto por el caragdor del sistema operativo.
 
- Cabe recalcar que la implmentacion de este modo de direccionamiento varia, donde tenemos los siguientes:
- \begin{enumerate}
-    \item Direccionamiento de pagina cero: En este se utiliza una direccion abreviada para acceder rapidamente a los primeros 256 bytes de la memoria.
-    \item Direccionamiento extendido: Utiliza la direccion completa de memoria, pero en arquitectura RISC esto a menudo requiere mas ciclos devido a las limitaciones del ancho de palabra mencionadas anteriormente.
- \end{enumerate}
+    Cabe recalcar que la implmentacion de este modo de direccionamiento varia, donde tenemos los siguientes:
+    \begin{enumerate}
+        \item Direccionamiento de pagina cero: En este se utiliza una direccion abreviada para acceder rapidamente a los primeros 256 bytes de la memoria.  
+        \item Direccionamiento extendido: Utiliza la direccion completa de memoria, pero en arquitectura RISC esto a menudo requiere mas ciclos devido a las limitaciones del ancho de palabra mencionadas anteriormente.   
+    \end{enumerate}
 
- Cabe recalcar un caso importante, donde si una instrucción LDR reservara 12 bits para un desplazamiento o dirección inmediata, solo podría direccionar un rango de 4096 bytes. Esto hace que el "direccionamiento directo puro" que es como la inclusión de una dirección completa de 32 bits dentro de una sola instrucción sea técnicamente imposible en una sola instrucción de máquina estándar de 32 bits.
+    Cabe recalcar un caso importante, donde si una instrucción LDR reservara 12 bits para un desplazamiento o dirección inmediata, solo podría direccionar un rango de 4096 bytes. Esto hace que el "direccionamiento directo puro" que es como la inclusión de una dirección completa de 32 bits dentro de una sola instrucción sea técnicamente imposible en una sola instrucción de máquina estándar de 32 bits.
 
- Esto hace que el direccionamiento directo en lenguajes de alto nivel o en ensamblador simplificado, se implementa en la microarquitectura ARM mediante técnicas diferentes como el direccionamiento relativo al PC o el uso de pares de instrucciones (MOV + MOVT) para construir la dirección completa en un registro antes de acceder a la memoria.
+    Esto hace que el direccionamiento directo en lenguajes de alto nivel o en ensamblador simplificado, se implementa en la microarquitectura ARM mediante técnicas diferentes como el direccionamiento relativo al PC o el uso de pares de instrucciones (MOV + MOVT) para construir la dirección completa en un registro antes de acceder a la memoria.
+    
+    \newpage
+    
+    \textbf{Ejemplo:}
 
+    Para este ejemplo tendremos el caso de un sistema basado en la arquitectura ARM, donde necesiutamos recuperar un valor de configuracion almacenado en una direccion especifica de memoria, la direccion sera la 0x2050 y cargarlo en el registro R0 para ser procesado.
+    
+    La instruccion en ensamblador seria:
+
+
+    \begin{lstlisting}[language={[x86masm]Assembler}, caption={Ejemplo de direccionamiento directo}]
+        LDR R0, [0x2050]  ; Cargar en R0 el valor contenido en la direccion 0x2050
+    \end{lstlisting}
+    
+    Ahora para esto tendremos que el Fetch, carga la instruccion desde la memoria de programa, despues el Decode, interpreta el opcode LDR y reconoce que se trata de una instruccion de carga con direccionamiento directo. El control del procesador extrae el valor 0x2050 del campo de direccion, en la implementacion de 32 bits entonces si esta direccion no cabe en el campo inmediato, el ensamblador habra colocado la direccion en una ``literal pool'' cercana, y la instruccion real sera:
+    \begin{lstlisting}[language={[x86masm]Assembler}, caption={Ejemplo de direccionamiento directo con literal pool}]
+        LDR R0, [PC, #offset]  ; Cargar en R0 el valor contenido en la direccion apuntada por PC + offset
+    \end{lstlisting}
+    
+    Para leer esta direccion primero, o usara intrucciones MOV/MOVT para contruir la direccion en un registro temporal, despues la lectura de memoria de la CPU coloca la direccion en el bus de direccion y se activa la señal de control de lectura, despues el la transferecia de datos de la memoria responda colocando el dato almacenado en la celda ``0x2050'' en el bus de datos, y finalmente el procesador carga este valor en R0 para su uso posterior.
+
+    Con esto tuvimos el flujo directo:  Instrucción $\rightarrow$ Dirección $\rightarrow$ Dato.
+
+    \textbf{Diagrama:}
+
+    \begin{figure}[hbt!]
+    \centering
+    \begin{tikzpicture}[
+            font=\sffamily,
+            >=Stealth, % Estilo de flecha moderno
+            box/.style={draw, thick, minimum height=1cm, align=center},
+            memory/.style={draw, thick, minimum width=3.5cm, minimum height=0.8cm, anchor=north}
+        ]
+
+        % --- Nodo de la Instrucción ---
+        % Usamos un rectángulo dividido para separar Opcode y Dirección
+        \node[
+            rectangle split, 
+            rectangle split parts=2, 
+            rectangle split horizontal, 
+            draw, thick, 
+            minimum height=1.2cm,
+            rectangle split part fill={white, blue!10} % Color suave para resaltar la dirección
+        ] (instruccion) {
+        Opcode 
+        \nodepart{two} \textbf{Dirección A}
+        };
+
+        % Etiqueta superior
+        \node[above=0.2cm of instruccion, font=\bfseries] {Instrucción de Máquina};
+
+        % --- Nodo de la Memoria ---
+        % Dibujamos una pila de rectángulos para simular la memoria
+        \node[memory, right=5cm of instruccion.east, anchor=west, yshift=2cm] (mem0) {};
+        \node[memory, below=0cm of mem0] (mem1) {};
+        \node[memory, below=0cm of mem1, fill=green!10] (memTarget) {\textbf{Operando}}; % Celda objetivo
+        \node[memory, below=0cm of memTarget] (mem2) {};
+        \node[memory, below=0cm of mem2] (mem3) {};
+
+        % Etiquetas de memoria
+        \node[above=0.1cm of mem0, font=\bfseries] {Memoria Principal};
+        \node[right=0.2cm of memTarget, font=\footnotesize] {Dirección A};
+        \node[left=0.3cm of memTarget, font=\footnotesize, align=right] {Dirección Efectiva\\(EA = A)};
+
+        % --- Flechas y Conexiones ---
+        % Flecha que sale del campo de dirección directamente a la celda de memoria
+        \draw[->, thick, line width=1.2pt, color=blue!60!black] 
+        (instruccion.two east) -- ++(1.5,0) |- (memTarget.west);
+
+        % --- Anotaciones basadas en tu texto ---
+        % Nota sobre la ausencia de cálculo (ALU)
+        \node[below=1.5cm of instruccion, text width=5cm, align=center, font=\footnotesize\itshape, color=gray] 
+        {El control extrae el valor y lo coloca directamente en el bus de direcciones (Sin cálculo de ALU).};
+
+        \end{tikzpicture}
+        \caption{Esquema del Modo de Direccionamiento Directo.}
+        \label{fig:direccionamiento_directo}
+    \end{figure}
+
+    \newpage
+    
     \noindent\textbf{5.-Describa el modo de direccionamiento indirecto, escriba un ejemplo y un gráfico que represente este modo de direccionamiento.}
 
 
