@@ -378,8 +378,37 @@
     
     \noindent\textbf{5.-Describa el modo de direccionamiento indirecto, escriba un ejemplo y un gráfico que represente este modo de direccionamiento.}
 
+    El direccionamiento indirecto es la forma en que se hace uso la computacion dinamica, donde se implementan punteros, arreglos, estructuras de datos complejas y el paso de parametros por referencias.
+    
+    No obstante, para la arquitectura RISC y ARM el direccionamiento indirecto es la forma en que se accede a la memoria de datos, donde debido a las instrucciones no pueden tener direcciones completas, la arquitectura usa los registros de proposito general como ounteros o direcciones base.
 
+    En otras palabras el direccionamiento indirecto la intruccion no especifica donde esta el dato, donde en este caso este se guarda en el registro base $R_n$ y la direccion efectiva se calcula viendo el contenido del registro base.
 
+    Para esto tenemos variaciones de esta estructura o forma de direccionamiento:
+
+    \begin{enumerate}
+        \item Direccionamiento indirecto por registro: Este define como pre-indexado sin desplazamiento, esta es que la direccion efectiva simplemente el contenido del registro $R_n$ es equivalente a un puntero simple (*ptr)-
+        \item Direccionamiento Pre-indexado con Desplazamiento: La dirección efectiva se calcula sumando un desplazamiento inmediato al registro base (EA = $R_n$ + \text{offset}). El registro base $R_n$ no se modifica permanentemente, solo se usa para el cálculo. Esto es útil para acceder a campos dentro de una estructura.
+        \item Direccionamiento Pre-indexado con Desplazamiento de Registro: El desplazamiento no es una constante, sino el valor contenido en otro registro $R_m$. Esto se utiliza para cceder a arreglos donde el indice es variable.
+        \item Direccionamiento Pre-indexado con Registro Escalado: En la arquitectura ARM el registro de índice $R_m$ pasa por el desplazador de barril antes de sumarse a la base. Esto permite calcular direcciones de arreglos de palabras (4 bytes) en un solo ciclo, escalando el índice por 4 automaticamente.
+        \item Modos con Actualización (Write-back): En la partr de pre-imdexadp tenemos que calcula la dirección, accede a la memoria y luego actualiza el registro base con la nueva dirección. En la parte de Post-indexado tenemos que accede a la memoria usando la dirección base original y luego actualiza el registro base sumando el desplazamiento.
+
+    \end{enumerate}
+
+    En una instrucción de carga (LDR) con direccionamiento indirecto:
+
+    \begin{enumerate}
+        \item Etapa de Decodificación: La unidad de control identifica los registros base ($R_n$) y destino ($R_d$).
+        \item Lectura de Registros: Se lee el valor de $R_n$ del banco de registros. Si hay un desplazamiento de registro ($R_m$), también se lee.
+        \item Etapa de Ejecución (ALU): La ALU no realiza operaciones aritméticas para el usuario, sino que calcula la dirección. Suma la base ($R_n$) con el desplazamiento.
+        \item Etapa de Memoria: La Dirección Efectiva se presenta al bus de direcciones de la memoria de datos para leer el valor.
+        \item Etapa de Escritura: El dato leído de la memoria se escribe en el registro destino ($R_d$).
+    \end{enumerate}
+
+    \textbf{Ejemplo:}
+
+    Si el refistro R1 actucs como un puntero base que contiene la direccion de memoria 0x20001000 y queremos leer el dato que esta una palabra de 4 bytes y despues de esa direccion guardarlo en R0
+    
 
     \newpage
     \nocite{*} 
