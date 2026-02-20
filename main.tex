@@ -382,7 +382,7 @@
     
     No obstante, para la arquitectura RISC y ARM el direccionamiento indirecto es la forma en que se accede a la memoria de datos, donde debido a las instrucciones no pueden tener direcciones completas, la arquitectura usa los registros de proposito general como ounteros o direcciones base.
 
-    En otras palabras el direccionamiento indirecto la intruccion no especifica donde esta el dato, donde en este caso este se guarda en el registro base $R_n$ y la direccion efectiva se calcula viendo el contenido del registro base.
+    En otras palabras En el direccionamiento indirecto, la instrucción no especifica donde esta el dato, donde en este caso este se guarda en el registro base $R_n$ y la direccion efectiva se calcula viendo el contenido del registro base.
 
     Para esto tenemos variaciones de esta estructura o forma de direccionamiento:
 
@@ -405,10 +405,80 @@
         \item Etapa de Escritura: El dato leído de la memoria se escribe en el registro destino ($R_d$).
     \end{enumerate}
 
-    \textbf{Ejemplo:}
+    \newpage
 
-    Si el refistro R1 actucs como un puntero base que contiene la direccion de memoria 0x20001000 y queremos leer el dato que esta una palabra de 4 bytes y despues de esa direccion guardarlo en R0
+    \textbf{Ejemplo:}
     
+    Supongamos que queremos acceder a un elemento de un arreglo de enteros almacenado en memoria, donde el puntero al inicio del arreglo está en $R1$ y el índice del elemento que queremos acceder está en $R2$. La instrucción en ensamblador ARM podría ser:
+    \begin{lstlisting}[language={[x86masm]Assembler}, caption={Ejemplo de direccionamiento indirecto con desplazamiento de registro}]
+        LDR R0, [R1, R2, LSL #2]  ; Cargar en R0 el valor del arreglo en la posicion R2
+    \end{lstlisting}
+    En este ejemplo, $R1$ contiene la dirección base del arreglo, $R2$ contiene el índice del elemento que queremos acceder, y el desplazamiento se calcula multiplicando el índice por 4 (tamaño de un entero) usando el desplazador de barril (LSL \#2). La ALU calcula la dirección efectiva sumando $R1$ con el resultado del desplazamiento, y luego se accede a la memoria para cargar el valor en $R0$.
+
+    \begin{lstlisting}[language={[x86masm]Assembler}, caption={Movimiento de memoria en direccionamiento indirecto con desplazamiento}, basicstyle=\ttfamily\footnotesize, frame=single, numbers=left, numberstyle=\tiny, breaklines=true]
+        ; 1. INICIALIZACION (Estado previo)
+        MOV R1, #0x1000       ; R1 contiene la direccion base del arreglo
+        MOV R2, #2            ; R2 contiene el indice (queremos acceder al elemento 2)
+
+        ; MAPA DE MEMORIA ACTUAL:
+        ; ----------------------------------------------------
+        ; Direccion   | Contenido (Valores del Arreglo) | Desc
+        ; 0x1000      | 10                              | Elemento 0
+        ; 0x1004      | 25                              | Elemento 1
+        ; 0x1008      | 42                              | Elemento 2 <-- Objetivo
+        ; 0x100C      | 55                              | Elemento 3
+
+        ; 2. EJECUCION DE LA INSTRUCCION DE CARGA INDIRECTA
+        LDR R0, [R1, R2, LSL #2]  
+
+        ; EXPLICACION DEL FLUJO DE DATOS (Hardware):
+        ; Paso A: El desplazador de barril toma R2 (2) y hace un "Logical Shift Left" 
+        ;         de 2 bits (LSL #2), lo que equivale a multiplicar por 4. Resultado = 8.
+        ; Paso B: La ALU suma el desplazamiento a la direccion base en R1.
+        ;         Dir. Efectiva = 0x1000 + 8 = 0x1008.
+        ; Paso C: El bus de direcciones apunta a 0x1008 en la memoria RAM.
+        ; Paso D: El bus de datos lee el contenido en esa direccion (42) y lo envia a R0.
+
+        ; 3. ESTADO FINAL
+        ; R0 = 42 (El registro R0 ahora contiene el valor extraido de la memoria)
+    \end{lstlisting}
+
+    Como se observa en el flujo, la instrucción de lectura nunca supo que iba a buscar información a la dirección `0x1008` al momento de ser escrita; esta dirección se calculó dinámicamente en tiempo de ejecución combinando los registros y el desplazamiento, demostrando el poder y la flexibilidad del direccionamiento indirecto.
+
+    \textbf{Diagrama:}
+
+    \begin{center}
+    \begin{tikzpicture}[node distance=2cm, auto, thick, >=stealth, text=black]
+        % Nodos de Registros y ALU
+        \node[draw, rectangle, fill=blue!10, minimum height=0.8cm, minimum width=3cm] (r1) {R1 (Base: 0x1000)};
+        \node[draw, rectangle, fill=blue!10, minimum height=0.8cm, minimum width=3cm, below of=r1, node distance=1.5cm] (r2) {R2 (Índice: 2)};
+        
+        \node[draw, rectangle, rounded corners, fill=orange!20, minimum height=1cm, minimum width=2cm, right of=r1, node distance=4.5cm, yshift=-0.75cm] (alu) {ALU (Suma)};
+        
+        % Nodo de Memoria
+        \node[draw, rectangle, minimum height=4cm, minimum width=3.5cm, right of=alu, node distance=5.5cm, yshift=0cm] (mem) {};
+        \node[above=0.1cm of mem.north, font=\bfseries] {Memoria RAM};
+        
+        % Celdas de memoria
+        \node[below=0.2cm of mem.north] (m1) {0x1000 : [ 10 ]};
+        \node[below=0.9cm of mem.north] (m2) {0x1004 : [ 25 ]};
+        \node[draw, fill=green!20, minimum width=3.3cm, below=1.6cm of mem.north] (m3) {0x1008 : [ 42 ]};
+        \node[below=2.3cm of mem.north] (m4) {0x100C : [ 55 ]};
+        \node[below=3.0cm of mem.north] (m5) {...};
+
+        % Conexiones y flechas
+        \draw[->] (r1.east) -- (alu.north west);
+        \draw[->] (r2.east) -- node[below, xshift=0.5cm, font=\footnotesize] {$\times 4$ (LSL \#2)} (alu.south west);
+        \draw[->, thick, color=red] (alu.east) -- node[above, font=\footnotesize] {Dir. Efectiva} node[below, font=\footnotesize] {0x1008} (m3.west);
+        
+        % Registro de destino
+        \node[draw, rectangle, fill=green!10, minimum height=0.8cm, minimum width=3cm, below of=alu, node distance=2.5cm] (r0) {R0 (Destino)};
+        \draw[->, thick, dashed, color=green!60!black] (m3.south) |- (r0.east) node[pos=0.75, below, font=\footnotesize] {Carga el valor 42};
+
+    \end{tikzpicture}
+    \end{center}
+    
+    En el modo de direccionamiento indirecto, la Unidad Lógico Aritmética (ALU) calcula la dirección efectiva de memoria sumando el valor del registro base R1 (\texttt{0x1000}) con el registro índice R2 ($2$). Este último se multiplica por $4$ mediante un desplazamiento lógico a la izquierda (LSL \#2) para obtener un desplazamiento real de $8$. Al sumar ambos valores, la ALU genera la dirección efectiva final ($\texttt{0x1000} + 8 = \texttt{0x1008}$), apuntando a una celda específica en la Memoria RAM de la cual se extrae el dato contenido ($42$) para ser cargado finalmente en el registro de destino R0.
 
     \newpage
     \nocite{*} 
