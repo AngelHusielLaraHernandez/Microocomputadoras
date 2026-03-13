@@ -1,4 +1,4 @@
-# LaTeX build artifacts
+# Archivos auxiliares de LaTeX
 *.aux
 *.bbl
 *.bcf
@@ -10,7 +10,14 @@
 *.run.xml
 *.synctex.gz
 *.toc
-
-# Output directories
-%OUTDIR%/
-
+*.lof
+*.lot
+*.idx
+*.ilg
+*.ind
+*.glg
+*.glo
+*.gls
+/%OUTDIR%
+main.bbl-SAVE-ERROR
+/.vscode
