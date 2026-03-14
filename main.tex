@@ -288,8 +288,6 @@
     Donde: \textbf{+1} = voltaje positivo, \textbf{-1} = voltaje negativo (tierra/inversión), \textbf{0} = sin activación.
 
     La característica principal es que \textbf{dos bobinas están activas simultáneamente en configuración opuesta}, generando un torque mayor que el motor unipolar, pero consumiendo más potencia. La polaridad debe invertirse en cada paso para lograr el movimiento continuo.
-
-    \newpage
     
     \noindent\textbf{4.-Mencione tres formas de implementar el paso de control en los motores a pasos.}
 
@@ -317,9 +315,6 @@
 
         El método de medio paso combina los dos métodos anteriores para obtener lo mejor de ambos. Alterna entre activar 1 bobina y activar 2 bobinas simultáneamente, resultando en una secuencia de 8 pasos: 1000, 1100, 0100, 0110, 0010, 0011, 0001, 1001. Esto duplica la resolución del motor mediante software.
     \end{itemize}
-
-
-    \newpage
     
     \noindent\textbf{5.-Explique brevemente qué es un servomotor.}
 
@@ -336,13 +331,12 @@
 
     \textit{Funcionamiento:} Cuando se envía una señal con un ángulo objetivo, el circuito de control calcula la diferencia entre la posición actual y la deseada. Si hay una diferencia, el circuito energiza el motor interno para que gire hasta alcanzar la posición objetivo. Una vez que la posición es correcta, el circuito desactiva el motor, pero mantiene el torque para resistir intentos externos de mover el eje. El rango de rotación típico de un servomotor es de 0° a 180°, aunque algunos modelos pueden rotar 360° o más.
 
-    \textit{Aplicaciones:} Los servomotores se utilizan ampliamente en robots, sistemas de dirección, drones, control remoto de modelos a escala, brazos robóticos y cualquier aplicación donde se requiera precisión posicional y control de movimiento exacto.
-
-    \newpage
     
     \noindent\textbf{6.-Cuáles son las características de la señal para controlar un servomotor, muestre la relación entre la señal de control y la salida del servomotor.}
 
-    \textit{Modulación por Ancho de Pulso (PWM):} Los servomotores se controlan mediante una señal PWM (Pulse Width Modulation). A diferencia del PWM usado para variar voltaje o velocidad en otros motores, en los servomotores el controlador interno mide el \textbf{ancho del pulso} (duración del estado alto) para determinar la posición angular deseada.
+    \textit{Modulación por Ancho de Pulso (PWM):} Los servomotores se controlan mediante una señal PWM. 
+    No obstante, la diferencia entre el PWM usado para variar voltaje o velocidad en otros motores, 
+    en los servos el controlador interno mide el ancho del pulso para determinar la posición angular.
 
     \textit{Características de la señal:}
     \begin{itemize}
@@ -371,88 +365,61 @@
     \end{tabular}
     \end{center}
 
-    \textit{Diagrama de la señal PWM:} La siguiente representación muestra la estructura de la señal PWM de 20 ms con un pulso de 1.5 ms (posición 90°):
+    \textit{Diagrama de la señal PWM:} La grafica muestra la estructura de la señal PWM de 20 ms con un pulso de 1.5 ms (posición 90°):
 
     \begin{center}
-    \begin{verbatim}
-    Período = 20 ms (50 Hz)
-    |<----------- 20 ms ----------->|
-    _
-    |___|        Nivel ALTO = 1.5 ms  |_
-    |                                 |
-    |<-1.5ms->|<---- 18.5 ms ----->|
+    \begin{tikzpicture}[x=0.6cm, y=1.5cm, >=stealth, font=\small]
+        % Líneas guía
+        \draw[dashed, gray!60] (0, 0) -- (0, 1.5);
+        \draw[dashed, gray!60] (1.5, 0) -- (1.5, 1.2);
+        \draw[dashed, gray!60] (20, 0) -- (20, 1.5);
 
-    Duty Cycle = (1.5 / 20) × 100 = 7.5%
-    \end{verbatim}
+        % Eje de tiempo
+        \draw[->, thick] (-0.5, 0) -- (22, 0) node[right] {$t$ (ms)};
+        
+        % Señal PWM
+        \draw[armblue, ultra thick]
+            (-0.5, 0) -- (0, 0) -- (0, 1) -- (1.5, 1) -- (1.5, 0) -- (20, 0) -- (20, 1) -- (21.5, 1) -- (21.5, 0) -- (22, 0);
+
+        % Cotas de tiempo superior (Período)
+        \draw[<->] (0, 1.3) -- (20, 1.3) node[midway, above] {Período = 20 ms (50 Hz)};
+
+        % Cotas de tiempo inferior (Niveles)
+        \draw[<->] (0, -0.4) -- (1.5, -0.4) node[midway, below] {1.5 ms};
+        \draw[<->] (1.5, -0.4) -- (20, -0.4) node[midway, below] {18.5 ms};
+
+        % Etiquetas de estado
+        \node[above] at (0.75, 1) {ALTO};
+        \node[above] at (20.75, 1) {ALTO};
+        
+        % Etiqueta global
+        \node[below=0.6cm] at (10, -0.4) {\textbf{Duty Cycle} $= \left( \frac{1.5}{20} \right) \times 100 = 7.5\%$};
+    \end{tikzpicture}
     \end{center}
 
-    \textit{Código MicroPython para controlar un servo:} Aquí se muestra cómo configurar un servo en la Raspberry Pi Pico W:
-
-    \begin{lstlisting}[language=Python]
-        from machine import Pin, PWM
-        import time
-
-        # Configurar pin 15 como PWM
-        servo_pin = PWM(Pin(15))
-
-        # Configurar frecuencia a 50 Hz (periodo de 20 ms)
-        servo_pin.freq(50)
-
-        def set_servo_angle(angle):
-            # Convertir angulo (0-180) a ancho de pulso (1-2 ms)
-            # Mapeo: 0 grados = 1.0 ms, 180 grados = 2.0 ms
-            pulse_ms = 1.0 + (angle / 180.0)
-            # Convertir a duty_u16() escala (0-65535)
-            duty = int((pulse_ms / 20.0) * 65535)
-            servo_pin.duty_u16(duty)
-
-        # Ejemplos de uso
-        set_servo_angle(0)      # 0 grados
-        set_servo_angle(90)     # 90 grados (centro)
-        set_servo_angle(180)    # 180 grados (maximo)
-
-        # Movimiento suave desde 0 a 180 grados
-        for angle in range(0, 181, 5):
-            set_servo_angle(angle)
-            time.sleep(0.1)
-            \end{lstlisting}
-
-            \textit{Relación entrada-salida:} El siguiente diagrama muestra la relación entre la señal PWM de entrada (desde la Pico) y la posición angular de salida del servo:
-
-            \begin{center}
-            \begin{verbatim}
-        Entrada PWM          Comparador interno      Salida mecánica
-        Pulso 1.0 ms    -->  del servo        -->  Posición 0
-        Pulso 1.5 ms    -->  compara posición -->  Posición 90
-        Pulso 2.0 ms    -->  actual vs deseada->  Posición 180
-
-        El potenciómetro mide la posición actual
-        y retroalimenta para cerrar el lazo
-        \end{verbatim}
-    \end{center}
-
-    \textit{Nota importante:} Algunos servos comerciales (como el SG90) pueden requerir ajustes en los valores mínimo (0.55 ms) y máximo (2.4-2.5 ms) para alcanzar los 180° completos. Estos valores deben calibrarse experimentalmente según el modelo específico del servo.
-
-
-    \newpage
+    La relación entre la señal de control PWM y la salida del servomotor radica en que el ángulo de giro final es directamente proporcional a la duración del ciclo en estado \textit{ALTO} (ancho de pulso). Internamente, el circuito del servomotor decodifica esta duración y la compara con la posición actual medida por su potenciómetro acoplado. Por ello, si se mantiene una señal de $1.0\text{ ms}$, el servomotor forzará su sistema de engranes para estabilizarse a $0^\circ$; con una señal de $1.5\text{ ms}$, ubicará la salida justo a la mitad del recorrido ($90^\circ$); y al mantener $2.0\text{ ms}$, se rotará hasta el límite mecánico opuesto ($180^\circ$). 
+    
     
     \noindent\textbf{7.-¿Para qué se utiliza un circuito electrónico puente H, cuáles son las señales para controlar un motor de CD y a pasos bipolar mediante un puente H?}
 
-    \textit{¿Qué es un puente H?} Un circuito puente H es un controlador de motores fundamental en robótica. Su función principal es permitir que un microcontrolador de bajo poder (como la Pico) controle motores de corriente directa o a pasos bipolares de altas demandas de corriente. El circuito protege el microcontrolador de las corrientes elevadas que requieren los motores, y permite invertir la dirección de giro del motor.
+    Un puente H es un controlador de motores, donde su función principal 
+    es permitir que un microcontrolador de bajo poder
+    controle motores de corriente directa o a pasos bipolares de
+    altas demandas de corriente.
+    El circuito protege el microcontrolador de las corrientes elevadas que 
+    requieren los motores, y permite invertir la dirección de giro del motor.
 
-    \textit{Estructura:} El puente H recibe su nombre porque sus 4 transistores (o MOSFETs) están organizados en una configuración que se parece a la letra "H", con el motor conectado en la barra horizontal central. El circuito integrado más común es el L298N, que puede manejar hasta 2 Amperios por canal y voltajes de hasta 46 V.
+    La estrcutura de el puente H recibe su nombre porque sus
+    4 transistores
+    están organizados en una configuración que se parece a la letra "H",
+    con el motor conectado en la barra horizontal central.
 
-    \textit{Características:}
-    \begin{itemize}
-        \item Permite invertir la polaridad del motor (movimiento bidireccional)
-        \item Protege el microcontrolador de picos de corriente
-        \item Controla velocidad mediante PWM (en motores CD)
-        \item Maneja altas corrientes que el microcontrolador no puede suministrar
-    \end{itemize}
+    El circuito integrado más común es el L298N, que puede manejar hasta 2 Amperios por canal y voltajes de hasta 46 V.
+
 
     \textbf{Control de motor de corriente directa (CD)}
 
-    Para controlar un motor CD con el L298N se necesitan 3 señales GPIO desde la Pico:
+    Para controlar un motor CD con el circuito de puene H se necesitan 3 señales GPIO desde la un microcontrolador:
 
     \begin{center}
     \begin{tabular}{|c|c|c|c|}
@@ -485,33 +452,34 @@
     Para un motor bipolar se necesitan 4 pines GPIO para controlar las 2 bobinas (cada una en configuración opuesta):
 
     \begin{center}
-    \begin{tabular}{|c|c|c|c|c|c|}
-    \hline
-    \textbf{Paso} & \textbf{IN1} & \textbf{IN2} & \textbf{IN3} & \textbf{IN4} & \textbf{Bobinas} \\
-    \hline
-    1 & 1 & 0 & 1 & 0 & A(+), B(+) \\
-    \hline
-    2 & 0 & 1 & 1 & 0 & A(-), B(+) \\
-    \hline
-    3 & 0 & 1 & 0 & 1 & A(-), B(-) \\
-    \hline
-    4 & 1 & 0 & 0 & 1 & A(+), B(-) \\
-    \hline
-    \end{tabular}
+        \begin{tabular}{|c|c|c|c|c|c|}
+            \hline
+            \textbf{Paso} & \textbf{IN1} & \textbf{IN2} & \textbf{IN3} & \textbf{IN4} & \textbf{Bobinas} \\
+            \hline
+            1 & 1 & 0 & 1 & 0 & A(+), B(+) \\
+            \hline
+            2 & 0 & 1 & 1 & 0 & A(-), B(+) \\
+            \hline
+            3 & 0 & 1 & 0 & 1 & A(-), B(-) \\
+            \hline
+            4 & 1 & 0 & 0 & 1 & A(+), B(-) \\
+            \hline
+        \end{tabular}
     \end{center}
 
-    En este caso, los pines Enable (ENA, ENB) generalmente se conectan a 5V fijo (HIGH permanente) sin necesidad de PWM, permitiendo solo control de dirección y posición mediante los pines IN1-IN4.
-
+    Un puente H se utiliza como una etapa de potencia para suministrar la corriente necesaria que los motores requieren y que un microcontrolador no puede brindar por sí solo, además de permitir la inversión de polaridad para cambiar el sentido de rotación. 
 
     \newpage
     
     \noindent\textbf{8.-¿Cual es la función del circuito integrado ULN2803 en el control de motores a pasos?}
 
-    \textit{¿Qué es el ULN2803?} El ULN2803 es un circuito integrado que funciona como un \textbf{amplificador de corriente}. Actúa como una interfaz entre el microcontrolador (Raspberry Pi Pico) y el motor a pasos unipolar, permitiendo que los débiles pulsos lógicos del microcontrolador controlen las bobinas de alta corriente del motor.
+    El ULN2803 es un circuito integrado que funciona como un amplificador de corriente.
+    Actúa como una interfaz entre el microcontrolador y el motor a pasos unipolar, permitiendo que los pocos pulsos lógicos del microcontrolador controlen las bobinas de alta corriente del motor.
 
-    \textit{¿Por qué es necesario?} El microcontrolador Pico solo puede suministrar 12 mA (miliamperios) a través de sus pines GPIO, pero los motores a pasos requieren 100-500 mA. El ULN2803 amplifica estas pequeñas corrientes hasta niveles suficientes para energizar las bobinas.
+    Por lo general los microcontroladores solo puede suministrar 12 mA a través de sus pines GPIO, pero los motores a pasos requieren 100-500 mA. 
+    El ULN2803 amplifica estas pequeñas corrientes hasta ser lo suficientes para energizar las bobinas.
 
-    \textit{Estructura interna:} El ULN2803 contiene 8 canales independientes de transistores NPN tipo Darlington. Cada canal:
+    Ahora bien la estructura del ULN2803 contiene 8 canales independientes de transistores NPN tipo Darlington. Cada canal:
     \begin{itemize}
         \item Recibe una entrada lógica desde un pin GPIO de la Pico (máximo 3.3V, pocos mA)
         \item Amplifica esta señal a través de un par Darlington (dos transistores en cascada)
@@ -519,16 +487,7 @@
         \item Conecta la salida directamente a tierra (GND) cuando se activa
     \end{itemize}
 
-    \textit{Características principales:}
-    \begin{itemize}
-        \item \textbf{8 canales:} Ideal para controlar 4 bobinas de un motor a pasos (2 canales por bobina en configuración unipolar)
-        \item \textbf{Corriente de salida:} Hasta 500 mA por canal
-        \item \textbf{Voltaje máximo:} 50 V
-        \item \textbf{Bajo consumo de entrada:} Solo requiere microamperios desde la Pico
-        \item \textbf{Diodos de protección integrados:} Protegen contra sobretensiones generadas por motores inductivos
-    \end{itemize}
-
-    \textit{Aplicación en motores unipolares:} En un motor a pasos unipolar de 4 bobinas, el ULN2803 se conecta así:
+    Ahora bien, en un motor a pasos unipolar de 4 bobinas, el ULN2803 se conecta así:
     \begin{itemize}
         \item Pin 1 de la Pico $\rightarrow$ Entrada Canal 1 del ULN2803 $\rightarrow$ Bobina A (a través de transistor 1)
         \item Pin 2 de la Pico $\rightarrow$ Entrada Canal 2 del ULN2803 $\rightarrow$ Bobina B (a través de transistor 2)
@@ -537,8 +496,6 @@
     \end{itemize}
 
     El voltaje de alimentación del motor (típicamente 5V o 12V) se conecta a las bobinas, pasando por los transistores del ULN2803 hacia tierra. Cuando un pin GPIO se pone en HIGH (3.3V), el transistor correspondiente se activa y deja que la corriente fluya a través de la bobina, energizándola.
-
-    \textit{Ventaja clave:} El ULN2803 es simple, económico y eficaz para motores unipolares, eliminando la complejidad de usar transistores individuales y proporcionando toda la amplificación de corriente necesaria en un solo chip.
 
 
     \newpage
