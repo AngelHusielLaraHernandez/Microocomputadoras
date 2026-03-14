@@ -10,6 +10,7 @@
 \usepackage{amssymb}
 \usepackage{cancel}
 \usepackage{mathrsfs}
+\usepackage{gensymb}
 
 % --- PAQUETES GRÁFICOS Y DE DISEÑO ---
 \usepackage{graphicx}
@@ -90,8 +91,8 @@
 \fancyhf{} % Limpia encabezados y pies por defecto
 
 % CONFIGURACIÓN DE LOS ESCUDOS EN EL ENCABEZADO
-\fancyhead[L]{\includegraphics[height=1.5cm]{portada_img/izq.png}} 
-\fancyhead[R]{\includegraphics[height=1.5cm]{portada_img/der.png}} 
+\fancyhead[L]{\includegraphics[height=1.5cm]{portada_img/der.png}} 
+\fancyhead[R]{\includegraphics[height=1.5cm]{portada_img/izq.png}} 
 
 \fancyfoot[C]{\thepage} % Número de página al centro abajo
 \renewcommand{\headrulewidth}{0.4pt} % Línea horizontal bajo el encabezado
@@ -126,31 +127,419 @@
     % 2. CONTENIDO
     \noindent\textbf{1.-Explique brevemente qué es un motor de corriente directa (CD). }
 
+    Un motor de corriente directa es un actuador electromecánico que convierte energía eléctrica continua en energía mecánica.
+    Su funcionamiento se basa en el uso de la ley de la fuerza de Lorentz, que nos dice, ``cuando un conductor porta una corriente eléctrica y se ubica dentro de un campo magnético, experimenta una fuerza perpendicular que induce el movimiento".
+
+    En el motor CD esta compuesto por un estator, que es la parte fija que se encarga de generar el campo magnetico, tambien se compone de un rotor, que es la parte que se mueve y genera el movimiento, por ultimo se encuentra el conmutador, que es el encargado de invertir la dirección de la corriente en el rotor para mantener el movimiento continuo.
+
+    No obstante un motor de corriente directa, no se centra en comportarse como una simple resistencia, si no que al girar las bobinas el rotor actua como un generador y genera un voltaje que se opone al voltaje de alimentación, este fenómeno se conoce como fuerza contraelectromotriz (fem).
+
+    \textit{Características de velocidad:} Un motor de corriente directa presenta una velocidad angular aproximadamente constante bajo carga, determinada principalmente por el voltaje aplicado. A mayor voltaje, mayor velocidad.  
+
+    \textit{Ventajas y desventajas:} Entre las ventajas tenemos el control simple y directo de velocidad mediante voltaje, junto con una respuesta rápida a cambios de comando. Sin embargo, presenta desventajas como fricción en el conmutador, generación de ruido durante la operación, y necesidad de mantenimiento periódico debido al desgaste del conmutador.
+
+    \textit{Eficiencia energética:} La potencia de entrada en un motor CD se distribuye en tres componentes principales: potencia mecánica útil (producida por el torque), pérdidas resistivas (en bobinas y resistencia interna) y pérdidas mecánicas (fricción y ventilación). La eficiencia varía generalmente entre 60\% y 85\%, dependiendo de la carga y el diseño del motor.
+
+    \textit{Aplicaciones:} Los motores de corriente directa se utilizan ampliamente en herramientas eléctricas portátiles, vehículos eléctricos, ventiladores, bombas, sistemas de automatización industrial y aplicaciones de robótica, donde se requiere control de velocidad simple y respuesta rápida.
+    
     \newpage
     \noindent\textbf{2.-Explique brevemente qué es un motor a pasos.}
 
+    Un motor a pasos es un actuador sin escobillas, diseñado específicamente para convertir trenes de pulsos digitales
+    en desplazamientos angulares y uniformes, denominados "pasos". La diferencia principal entre este motor y el de un motor de corriente directa estándar,
+    que comienza a girar y de manera continua en el momento en que se le aplica un voltaje,
+    el rotor de un motor a pasos no gira libremente, si no que avanza y se detiene en ubicaciones exactas
+    esto por algoritmos de impulsos magnéticos.
+    
+    Debido a esta capacidad de control posicional, los motores a pasos operan
+    de manera confiable en lazos de control abiertos, esto queiere decir
+    que el microcontrolador puede deducir la posición exacta del rotor con solo contar los pulsos recibidos.  
+    
+    Ahora bien, la forma en que un motor a pasos esta contruido, es por el rotor móvil está construido
+    por un núcleo magnético, este rotor está rodeado por el estator, el cual tiene múltiples electroimanes
+    independientes separados en fases de cableado, tambien tenemos a los dientes del rotor
+    con un ligero desalineamiento físico con los polos del estator.
+    Cuando el microcontrolador pone la corriente de manera selectiva a un electroimán específico del estator,
+    el dentado del rotor experimenta una fuerte atracción magnética y se desplaza el ángulo exacto necesario 
+    para alinearse con ese campo generado. 
+    Una vez posicionado y mientras la bobina permanezca energizada, el motor ejerce un torque de retención, 
+    aferrándose rígidamente a esa posición para resistir fuerzas externas que intenten moverlo.
+
+    Sin embargo para la Raspberry Pi Pico W,
+    la placa no regula el motor variando el voltaje analógico o modulando un pulso de velocidad,
+    sino que la Pico W debe controlar iterativamente matrices de bits (1s y 0s lógicos) a través de sus pines GPIO
+    en un bucle. Cada fila de esta matriz de bits activa combinaciones específicas de las bobinas del estator.
+
+    \textit{Ejemplo de secuencia de pasos:} Para un motor a pasos bipolar típico con 4 bobinas (fases A, B, C, D), la siguiente tabla muestra la secuencia de activación en modo \textbf{Full-Step} (movimiento más fuerte):
+
+    \begin{center}
+        \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        \textbf{Paso} & \textbf{Bobina A} & \textbf{Bobina B} & \textbf{Bobina C} & \textbf{Bobina D} & \textbf{Posición del rotor} \\
+        \hline
+        1 & 1 & 0 & 0 & 0 & 0\textdegree \\
+        \hline
+        2 & 0 & 1 & 0 & 0 & 90\textdegree \\
+        \hline
+        3 & 0 & 0 & 1 & 0 & 180\textdegree \\
+        \hline
+        4 & 0 & 0 & 0 & 1 & 270\textdegree \\
+        \hline
+        \end{tabular}
+    \end{center}
+
+    Cuando se repite este ciclo continuamente, el rotor gira paso a paso. Cada transición excita una bobina diferente, creando un campo magnético que atrae el rotor a una nueva posición. Para girar en sentido opuesto, simplemente se invierte el orden de la secuencia (Paso 4, 3, 2, 1).
+
+    \textit{Ejemplo de código en MicroPython:} Aquí se muestra cómo implementar esta secuencia en la Raspberry Pi Pico W:
+
+    \begin{lstlisting}[language=Python]
+    from machine import Pin
+    import time
+
+    # Definir pines GPIO para las 4 bobinas
+    pin_A = Pin(0, Pin.OUT)
+    pin_B = Pin(1, Pin.OUT)
+    pin_C = Pin(2, Pin.OUT)
+    pin_D = Pin(3, Pin.OUT)
+
+    # Matriz de secuencia Full-Step
+    secuencia = [
+        [1, 0, 0, 0],  # Paso 1: Bobina A activada
+        [0, 1, 0, 0],  # Paso 2: Bobina B activada
+        [0, 0, 1, 0],  # Paso 3: Bobina C activada
+        [0, 0, 0, 1],  # Paso 4: Bobina D activada
+    ]
+
+    # Girar el motor 10 rotaciones completas
+    for rotacion in range(10):
+        for paso in secuencia:
+            pin_A.value(paso[0])
+            pin_B.value(paso[1])
+            pin_C.value(paso[2])
+            pin_D.value(paso[3])
+            time.sleep(0.01)  # Delay de 10ms entre pasos
+    \end{lstlisting}
+
+    El microcontrolador escribe estos valores en los pines GPIO secuencialmente, activando cada bobina en su turno. El \texttt{time.sleep(0.01)} controla la velocidad: valores menores aceleran el motor, valores mayores lo ralentizan.
+
     \newpage
     \noindent\textbf{3.-Cuáles son los dos tipos de motores a pasos, explique las señales básicas para el control de cada uno de estos motores.}
+
+    La clasificación de los motores a pasos se fundamenta en la topología eléctrica del devanado de sus bobinas magnéticas,
+    dividiéndose en dos: los motores unipolares y los motores bipolares.
+
+    \textbf{Motor a pasos UNIPOLAR}
+
+    Los motores a pasos unipolares se distinguen por poseer de cinco a seis cables de conexión externa.
+    La característica es que cada fase electromagnética posee una derivación conocida como center tap.
+    Este cable central se conecta de manera física, fija al voltaje de alimentación positivo (VCC) de la fuente de poder externa.
+    Por lo tanto, para generar los campos magnéticos, el circuito de control solo debe conmutar y enviar a tierra (GND)
+    uno de los extremos libres de la bobina a la vez. Al realizar esto, la corriente eléctrica viaja de manera unilineal constantemente,
+    desde el centro hacia el extremo a tierra, sin tener que invertir la polaridad de su flujo.
+    Las señales básicas para controlarlos por la Raspberry Pi Pico consisten simplemente en encender o apagar secuencias lógicas
+    altas hacia un arreglo Darlington de canal único (como el IC ULN2803) que actúa como un interruptor a tierra.
+
+    La siguiente tabla muestra la secuencia de control Full-Step para un motor unipolar con 4 fases:
+
+    \begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    \textbf{Paso} & \textbf{GPIO 1} & \textbf{GPIO 2} & \textbf{GPIO 3} & \textbf{GPIO 4} & \textbf{Bobinas activadas} \\
+    \hline
+    1 & 1 & 0 & 0 & 0 & Bobina A \\
+    \hline
+    2 & 0 & 1 & 0 & 0 & Bobina B \\
+    \hline
+    3 & 0 & 0 & 1 & 0 & Bobina C \\
+    \hline
+    4 & 0 & 0 & 0 & 1 & Bobina D \\
+    \hline
+    \end{tabular}
+    \end{center}
+
+    La característica principal es que \textbf{solo una bobina está activa a la vez}, reduciendo consumo de potencia. La velocidad se controla con el delay entre pasos, típicamente entre 5-20 ms.
+
+    \textbf{Motor a pasos BIPOLAR}
+
+    Los motores a pasos bipolares se caracterizan por tener solo cuatro cables de conexión externa, sin ningún tipo de derivación central.
+    En este diseño, cada bobina electromagnética es un circuito cerrado independiente, sin un punto común conectado a VCC.
+    Para generar los campos magnéticos necesarios para el movimiento, el circuito de control debe ser capaz de invertir la dirección de la corriente a través de cada bobina.
+    Esto se logra mediante un puente H, que permite que la corriente fluya en ambas direcciones a través de las bobinas. Las señales básicas para controlarlos por la Raspberry Pi Pico consisten en enviar combinaciones de señales lógicas altas y bajas a un arreglo de puentes H (como el IC L298N),
+    que actúa como un interruptor de doble canal para cada bobina, permitiendo así el control bidireccional necesario para el funcionamiento del motor bipolar.
+
+    La siguiente tabla muestra la secuencia de control Full-Step para un motor bipolar (requiere inversión de polaridad):
+
+    \begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    \textbf{Paso} & \textbf{Bobina A} & \textbf{Bobina B} & \textbf{Bobina C} & \textbf{Bobina D} & \textbf{Estado magnético} \\
+    \hline
+    1 & +1 & 0 & -1 & 0 & A(+), C(-) activas \\
+    \hline
+    2 & 0 & +1 & 0 & -1 & B(+), D(-) activas \\
+    \hline
+    3 & -1 & 0 & +1 & 0 & A(-), C(+) activas \\
+    \hline
+    4 & 0 & -1 & 0 & +1 & B(-), D(+) activas \\
+    \hline
+    \end{tabular}
+    \end{center}
+
+    Donde: \textbf{+1} = voltaje positivo, \textbf{-1} = voltaje negativo (tierra/inversión), \textbf{0} = sin activación.
+
+    La característica principal es que \textbf{dos bobinas están activas simultáneamente en configuración opuesta}, generando un torque mayor que el motor unipolar, pero consumiendo más potencia. La polaridad debe invertirse en cada paso para lograr el movimiento continuo.
 
     \newpage
     
     \noindent\textbf{4.-Mencione tres formas de implementar el paso de control en los motores a pasos.}
 
+    Para inducir el campo rotatorio que indique el avance del rotor de a pasos,
+    el microcontrolador debe enviar combinaciones binarias específicas a las compuertas de potencia. 
+    Existen tres modalidades para controlar e implementar el paso en los motores a pasos, donde son conocidas como
+    excitación por onda (Wave Drive), paso completo (Full-Step) y medio paso (Half-Step).
+
+    \begin{itemize}
+        \item \textbf{Excitación por onda (Wave Drive / Single-Phase On)}
+            La excitación por onda (Wave Drive / Single-Phase On) es un metodo secuencial y energéticamente pasivo.
+            En este método, el programa activa una única bobina en cada paso del ciclo. La secuencia binaria que se envía a los 4 pines es: 1000, 0100, 0010, 0001, activando solo una bobina a la vez. La principal ventaja de este método es su bajo consumo de energía y generación mínima de calor, lo que lo hace ideal para sistemas con fuentes de alimentación limitadas. Sin embargo, como solo una bobina está activa en cada momento, el torque generado es comparativamente menor, limitando su uso en aplicaciones que requieren cargas pesadas o alta resistencia, como motores con poleas o bandas tensadas.
+
+        \item \textbf{Paso completo (Full-Step / Two-Phase On)}
+
+        El método de paso completo activa dos bobinas simultáneamente en cada paso, 
+        lo que genera un torque significativamente mayor que el método de onda. La secuencia binaria que 
+        se envía a los 4 pines es: 1100, 0110, 0011, 1001. El campo magnético combinado de las dos bobinas 
+        atrae con mayor fuerza el rotor, posicionándolo entre los dos polos activados. 
+        Esto proporciona máximo torque y máxima capacidad de retención, la desventaja principal es que genera vibraciones, 
+        especialmente a bajas velocidades, debido a las transiciones repetninas y rapidas entre pasos.
+
+
+        \item \textbf{Medio paso (Half-Step)}
+
+        El método de medio paso combina los dos métodos anteriores para obtener lo mejor de ambos. Alterna entre activar 1 bobina y activar 2 bobinas simultáneamente, resultando en una secuencia de 8 pasos: 1000, 1100, 0100, 0110, 0010, 0011, 0001, 1001. Esto duplica la resolución del motor mediante software.
+    \end{itemize}
+
+
     \newpage
     
     \noindent\textbf{5.-Explique brevemente qué es un servomotor.}
+
+    Un servomotor es un actuador de control de posición que permite alcanzar y mantener ángulos específicos con precisión. A diferencia de un motor de corriente directa que gira continuamente, un servomotor puede detenerse exactamente en una posición angular deseada. Gracias a su sistema de realimentación (lazo cerrado), el servomotor detecta constantemente su posición actual y la compara con la posición objetivo, ajustándose automáticamente si hay alguna diferencia.
+
+    \textit{Componentes internos:} Un servomotor está compuesto internamente por varios elementos:
+
+    \begin{itemize}
+        \item \textbf{Motor de corriente directa:} Un pequeño motor CD de altas revoluciones que proporciona la energía inicial.
+        \item \textbf{Sistema de engranajes reductores:} Una serie de engranajes que reducen la velocidad del motor y aumentan significativamente el torque en el eje de salida.
+        \item \textbf{Potenciómetro:} Un sensor resistivo acoplado directamente al eje de salida que monitorea la posición angular actual en tiempo real.
+        \item \textbf{Circuito de control:} Un procesador que compara constantemente la posición actual (medida por el potenciómetro) con la posición objetivo solicitada.
+    \end{itemize}
+
+    \textit{Funcionamiento:} Cuando se envía una señal con un ángulo objetivo, el circuito de control calcula la diferencia entre la posición actual y la deseada. Si hay una diferencia, el circuito energiza el motor interno para que gire hasta alcanzar la posición objetivo. Una vez que la posición es correcta, el circuito desactiva el motor, pero mantiene el torque para resistir intentos externos de mover el eje. El rango de rotación típico de un servomotor es de 0° a 180°, aunque algunos modelos pueden rotar 360° o más.
+
+    \textit{Aplicaciones:} Los servomotores se utilizan ampliamente en robots, sistemas de dirección, drones, control remoto de modelos a escala, brazos robóticos y cualquier aplicación donde se requiera precisión posicional y control de movimiento exacto.
 
     \newpage
     
     \noindent\textbf{6.-Cuáles son las características de la señal para controlar un servomotor, muestre la relación entre la señal de control y la salida del servomotor.}
 
+    \textit{Modulación por Ancho de Pulso (PWM):} Los servomotores se controlan mediante una señal PWM (Pulse Width Modulation). A diferencia del PWM usado para variar voltaje o velocidad en otros motores, en los servomotores el controlador interno mide el \textbf{ancho del pulso} (duración del estado alto) para determinar la posición angular deseada.
+
+    \textit{Características de la señal:}
+    \begin{itemize}
+        \item \textbf{Frecuencia:} 50 Hz (período de 20 ms)
+        \item \textbf{Ancho de pulso:} Entre 1.0 ms y 2.0 ms (varía según el servo)
+        \item \textbf{Ciclo de trabajo (Duty Cycle):} Porcentaje de tiempo que el pulso está en alto
+    \end{itemize}
+
+    \textit{Relación entre ancho de pulso y posición:} La siguiente tabla muestra cómo el ancho del pulso determina la posición angular en un servo típico de 180°:
+
+    \begin{center}
+    \begin{tabular}{|c|c|c|}
+    \hline
+    \textbf{Ancho de pulso (ms)} & \textbf{Duty Cycle} & \textbf{Posición angular} \\
+    \hline
+    1.0 & 5\% & 0° \\
+    \hline
+    1.25 & 6.25\% & 45° \\
+    \hline
+    1.5 & 7.5\% & 90° \\
+    \hline
+    1.75 & 8.75\% & 135° \\
+    \hline
+    2.0 & 10\% & 180° \\
+    \hline
+    \end{tabular}
+    \end{center}
+
+    \textit{Diagrama de la señal PWM:} La siguiente representación muestra la estructura de la señal PWM de 20 ms con un pulso de 1.5 ms (posición 90°):
+
+    \begin{center}
+    \begin{verbatim}
+    Período = 20 ms (50 Hz)
+    |<----------- 20 ms ----------->|
+    _
+    |___|        Nivel ALTO = 1.5 ms  |_
+    |                                 |
+    |<-1.5ms->|<---- 18.5 ms ----->|
+
+    Duty Cycle = (1.5 / 20) × 100 = 7.5%
+    \end{verbatim}
+    \end{center}
+
+    \textit{Código MicroPython para controlar un servo:} Aquí se muestra cómo configurar un servo en la Raspberry Pi Pico W:
+
+    \begin{lstlisting}[language=Python]
+        from machine import Pin, PWM
+        import time
+
+        # Configurar pin 15 como PWM
+        servo_pin = PWM(Pin(15))
+
+        # Configurar frecuencia a 50 Hz (periodo de 20 ms)
+        servo_pin.freq(50)
+
+        def set_servo_angle(angle):
+            # Convertir angulo (0-180) a ancho de pulso (1-2 ms)
+            # Mapeo: 0 grados = 1.0 ms, 180 grados = 2.0 ms
+            pulse_ms = 1.0 + (angle / 180.0)
+            # Convertir a duty_u16() escala (0-65535)
+            duty = int((pulse_ms / 20.0) * 65535)
+            servo_pin.duty_u16(duty)
+
+        # Ejemplos de uso
+        set_servo_angle(0)      # 0 grados
+        set_servo_angle(90)     # 90 grados (centro)
+        set_servo_angle(180)    # 180 grados (maximo)
+
+        # Movimiento suave desde 0 a 180 grados
+        for angle in range(0, 181, 5):
+            set_servo_angle(angle)
+            time.sleep(0.1)
+            \end{lstlisting}
+
+            \textit{Relación entrada-salida:} El siguiente diagrama muestra la relación entre la señal PWM de entrada (desde la Pico) y la posición angular de salida del servo:
+
+            \begin{center}
+            \begin{verbatim}
+        Entrada PWM          Comparador interno      Salida mecánica
+        Pulso 1.0 ms    -->  del servo        -->  Posición 0
+        Pulso 1.5 ms    -->  compara posición -->  Posición 90
+        Pulso 2.0 ms    -->  actual vs deseada->  Posición 180
+
+        El potenciómetro mide la posición actual
+        y retroalimenta para cerrar el lazo
+        \end{verbatim}
+    \end{center}
+
+    \textit{Nota importante:} Algunos servos comerciales (como el SG90) pueden requerir ajustes en los valores mínimo (0.55 ms) y máximo (2.4-2.5 ms) para alcanzar los 180° completos. Estos valores deben calibrarse experimentalmente según el modelo específico del servo.
+
+
     \newpage
     
     \noindent\textbf{7.-¿Para qué se utiliza un circuito electrónico puente H, cuáles son las señales para controlar un motor de CD y a pasos bipolar mediante un puente H?}
 
+    \textit{¿Qué es un puente H?} Un circuito puente H es un controlador de motores fundamental en robótica. Su función principal es permitir que un microcontrolador de bajo poder (como la Pico) controle motores de corriente directa o a pasos bipolares de altas demandas de corriente. El circuito protege el microcontrolador de las corrientes elevadas que requieren los motores, y permite invertir la dirección de giro del motor.
+
+    \textit{Estructura:} El puente H recibe su nombre porque sus 4 transistores (o MOSFETs) están organizados en una configuración que se parece a la letra "H", con el motor conectado en la barra horizontal central. El circuito integrado más común es el L298N, que puede manejar hasta 2 Amperios por canal y voltajes de hasta 46 V.
+
+    \textit{Características:}
+    \begin{itemize}
+        \item Permite invertir la polaridad del motor (movimiento bidireccional)
+        \item Protege el microcontrolador de picos de corriente
+        \item Controla velocidad mediante PWM (en motores CD)
+        \item Maneja altas corrientes que el microcontrolador no puede suministrar
+    \end{itemize}
+
+    \textbf{Control de motor de corriente directa (CD)}
+
+    Para controlar un motor CD con el L298N se necesitan 3 señales GPIO desde la Pico:
+
+    \begin{center}
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    \textbf{IN1} & \textbf{IN2} & \textbf{PWM (Enable)} & \textbf{Acción} \\
+    \hline
+    1 & 0 & 255 & Girar hacia adelante (máxima velocidad) \\
+    \hline
+    1 & 0 & 128 & Girar hacia adelante (mitad velocidad) \\
+    \hline
+    1 & 0 & 0 & Motor detenido \\
+    \hline
+    0 & 1 & 255 & Girar hacia atrás (máxima velocidad) \\
+    \hline
+    0 & 1 & 128 & Girar hacia atrás (mitad velocidad) \\
+    \hline
+    0 & 0 & X & Motor frenado \\
+    \hline
+    \end{tabular}
+    \end{center}
+
+    Donde:
+    \begin{itemize}
+        \item \textbf{IN1, IN2}: Determinan la dirección del giro
+        \item \textbf{PWM (Enable)}: Controla la velocidad (0-255 en MicroPython)
+    \end{itemize}
+
+    \textbf{Control de motor a pasos bipolar}
+
+    Para un motor bipolar se necesitan 4 pines GPIO para controlar las 2 bobinas (cada una en configuración opuesta):
+
+    \begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    \textbf{Paso} & \textbf{IN1} & \textbf{IN2} & \textbf{IN3} & \textbf{IN4} & \textbf{Bobinas} \\
+    \hline
+    1 & 1 & 0 & 1 & 0 & A(+), B(+) \\
+    \hline
+    2 & 0 & 1 & 1 & 0 & A(-), B(+) \\
+    \hline
+    3 & 0 & 1 & 0 & 1 & A(-), B(-) \\
+    \hline
+    4 & 1 & 0 & 0 & 1 & A(+), B(-) \\
+    \hline
+    \end{tabular}
+    \end{center}
+
+    En este caso, los pines Enable (ENA, ENB) generalmente se conectan a 5V fijo (HIGH permanente) sin necesidad de PWM, permitiendo solo control de dirección y posición mediante los pines IN1-IN4.
+
+
     \newpage
     
     \noindent\textbf{8.-¿Cual es la función del circuito integrado ULN2803 en el control de motores a pasos?}
+
+    \textit{¿Qué es el ULN2803?} El ULN2803 es un circuito integrado que funciona como un \textbf{amplificador de corriente}. Actúa como una interfaz entre el microcontrolador (Raspberry Pi Pico) y el motor a pasos unipolar, permitiendo que los débiles pulsos lógicos del microcontrolador controlen las bobinas de alta corriente del motor.
+
+    \textit{¿Por qué es necesario?} El microcontrolador Pico solo puede suministrar 12 mA (miliamperios) a través de sus pines GPIO, pero los motores a pasos requieren 100-500 mA. El ULN2803 amplifica estas pequeñas corrientes hasta niveles suficientes para energizar las bobinas.
+
+    \textit{Estructura interna:} El ULN2803 contiene 8 canales independientes de transistores NPN tipo Darlington. Cada canal:
+    \begin{itemize}
+        \item Recibe una entrada lógica desde un pin GPIO de la Pico (máximo 3.3V, pocos mA)
+        \item Amplifica esta señal a través de un par Darlington (dos transistores en cascada)
+        \item Genera una salida capaz de manejar hasta 500 mA por canal
+        \item Conecta la salida directamente a tierra (GND) cuando se activa
+    \end{itemize}
+
+    \textit{Características principales:}
+    \begin{itemize}
+        \item \textbf{8 canales:} Ideal para controlar 4 bobinas de un motor a pasos (2 canales por bobina en configuración unipolar)
+        \item \textbf{Corriente de salida:} Hasta 500 mA por canal
+        \item \textbf{Voltaje máximo:} 50 V
+        \item \textbf{Bajo consumo de entrada:} Solo requiere microamperios desde la Pico
+        \item \textbf{Diodos de protección integrados:} Protegen contra sobretensiones generadas por motores inductivos
+    \end{itemize}
+
+    \textit{Aplicación en motores unipolares:} En un motor a pasos unipolar de 4 bobinas, el ULN2803 se conecta así:
+    \begin{itemize}
+        \item Pin 1 de la Pico $\rightarrow$ Entrada Canal 1 del ULN2803 $\rightarrow$ Bobina A (a través de transistor 1)
+        \item Pin 2 de la Pico $\rightarrow$ Entrada Canal 2 del ULN2803 $\rightarrow$ Bobina B (a través de transistor 2)
+        \item Pin 3 de la Pico $\rightarrow$ Entrada Canal 3 del ULN2803 $\rightarrow$ Bobina C (a través de transistor 3)
+        \item Pin 4 de la Pico $\rightarrow$ Entrada Canal 4 del ULN2803 $\rightarrow$ Bobina D (a través de transistor 4)
+    \end{itemize}
+
+    El voltaje de alimentación del motor (típicamente 5V o 12V) se conecta a las bobinas, pasando por los transistores del ULN2803 hacia tierra. Cuando un pin GPIO se pone en HIGH (3.3V), el transistor correspondiente se activa y deja que la corriente fluya a través de la bobina, energizándola.
+
+    \textit{Ventaja clave:} El ULN2803 es simple, económico y eficaz para motores unipolares, eliminando la complejidad de usar transistores individuales y proporcionando toda la amplificación de corriente necesaria en un solo chip.
+
 
     \newpage
     \nocite{*} 
