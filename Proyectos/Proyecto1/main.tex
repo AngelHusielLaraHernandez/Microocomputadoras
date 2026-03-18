@@ -696,6 +696,66 @@ main()
     
     \section{Resultados:}
 
+    A continuacion se presentan 3 ecuaciones de segundo orden y 3 ecuaciones de tercer orden como pruebas del programa, junto con los resultados esperados.
+
+    \subsection{Ecuaciones de segundo orden:}
+
+    \textbf{Problema 1:} Discriminante positivo ($D > 0$), dos raices reales distintas.
+    \begin{equation}
+        x^2 - 5x + 6 = 0
+    \end{equation}
+    Coeficientes: $a = 1$, $b = -5$, $c = 6$. El discriminante es $D = (-5)^2 - 4(1)(6) = 25 - 24 = 1 > 0$.
+    \begin{center}
+        \textbf{Resultado esperado:} $x_1 = 3$, \quad $x_2 = 2$
+    \end{center}
+
+    \textbf{Problema 2:} Discriminante igual a cero ($D = 0$), raiz doble.
+    \begin{equation}
+        2x^2 + 4x + 2 = 0
+    \end{equation}
+    Coeficientes: $a = 2$, $b = 4$, $c = 2$. El discriminante es $D = (4)^2 - 4(2)(2) = 16 - 16 = 0$.
+    \begin{center}
+        \textbf{Resultado esperado:} $x_1 = -1$, \quad $x_2 = -1$
+    \end{center}
+
+    \textbf{Problema 3:} Discriminante negativo ($D < 0$), dos raices complejas conjugadas.
+    \begin{equation}
+        x^2 + 2x + 5 = 0
+    \end{equation}
+    Coeficientes: $a = 1$, $b = 2$, $c = 5$. El discriminante es $D = (2)^2 - 4(1)(5) = 4 - 20 = -16 < 0$.
+    \begin{center}
+        \textbf{Resultado esperado:} $x_1 = -1 + 2i$, \quad $x_2 = -1 - 2i$
+    \end{center}
+
+    \subsection{Ecuaciones de tercer orden:}
+
+    \textbf{Problema 1:} Discriminante de Cardano negativo ($\Delta < 0$), tres raices reales distintas.
+    \begin{equation}
+        x^3 - 6x^2 + 11x - 6 = 0
+    \end{equation}
+    Coeficientes: $a = 1$, $b = -6$, $c = 11$, $d = -6$. Se puede factorizar como $(x-1)(x-2)(x-3) = 0$.
+    \begin{center}
+        \textbf{Resultado esperado:} $x_1 = 3$, \quad $x_2 = 1$, \quad $x_3 = 2$
+    \end{center}
+
+    \textbf{Problema 2:} Discriminante de Cardano positivo ($\Delta > 0$), una raiz real y dos complejas conjugadas.
+    \begin{equation}
+        x^3 + x^2 + x + 1 = 0
+    \end{equation}
+    Coeficientes: $a = 1$, $b = 1$, $c = 1$, $d = 1$. Se puede factorizar como $(x+1)(x^2+1) = 0$.
+    \begin{center}
+        \textbf{Resultado esperado:} $x_1 = -1$, \quad $x_2 = i$, \quad $x_3 = -i$
+    \end{center}
+
+    \textbf{Problema 3:} Discriminante de Cardano igual a cero ($\Delta = 0$), raiz repetida.
+    \begin{equation}
+        x^3 - 3x^2 + 4 = 0
+    \end{equation}
+    Coeficientes: $a = 1$, $b = -3$, $c = 0$, $d = 4$. Se puede factorizar como $(x+1)(x-2)^2 = 0$.
+    \begin{center}
+        \textbf{Resultado esperado:} $x_1 = -1$, \quad $x_2 = 2$, \quad $x_3 = 2$
+    \end{center}
+
     \newpage
     \section{Conclusiones:}
 
@@ -707,6 +767,14 @@ main()
         \item \textbf{Garcia Cortes Adolfo de Jesus:}
 
         \item \textbf{Lara Hernandez Angel Husiel:}
+        Para el desarrollo del proyecto fue de gran ayuda, para saber las limitaciones de la raspberry pico 2W, en cuestion de carga de librerias para micropython, donde se tuvo que hacer uso de la libreria cmath, la cual a diferencia de math, numpy, etc, si es compatible con micropython y mas importante
+        es compatible y es eficiente para la placa pico 2W, esta liberia cmath, fue la mas importante, ya que esta fue la que ma snos ayudo en el calculo de las raices complejas, tanto para la ecuacion cuadratica como para la cubica, ya que el metodo de Cardano,
+        en algunos casos, requiere trabajar con numeros complejos aunque el resultado final sea real, y gracias a esta libreria se pudo implementar el metodo de Cardano sin problemas, no obstante, no puedo dejar de lado que gracias al metodo cardano, pude corregir errores de logica de codigo 
+        debido que en algunos casos los numeros de acarreo llevaban decimales muy pequeños que se iban arrastrando y generaban resultados erroneos, minimos errores de redonde, pero eso hacia que el programa ya no se viera de la forma indicada para tener la respuesta correcta,
+        ademas de esto la implementacion de este metodo me ayudo a entender de mejor manera el funcionamiento de micropython para la raspberry. Por ultimo, tenemos que el codigo fue divivido en diferentes archivos para que su comprension fuera mas sencilla, 
+        esto hizo que practicas de programacion que tenemos como es el caso de C en serparar funciones en archivos propios, las volvimos a usar para este proyecto, lo cual me ayuda de mejor manera tanto a programar, como tener una mejor organizacion del codigo mismo.
+        Este proyecto fue de gran ayuda por todo lo nuevo de micropython y conocer las limitaciones de la placa en cuestion de librerias, asi como anteriormente dije para corregir errores de acarreo de decimales que por muy pequeños en el caso de la placa 
+        si afectaron de gran forma resultados, por lo que varias veces se tuvo que reestructurar el codigo para el correcto funcionamiento del mismo.
 
         \item \textbf{Lugo Manzano Rodrigo:}
         
